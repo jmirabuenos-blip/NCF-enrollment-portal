@@ -1,0 +1,42 @@
+{% extends 'pos_app/base.html' %}
+
+{% block title %}User Management - NCF CRM{% endblock %}
+
+{% block content %}
+<h2 style="color: #2F6B3F; margin-bottom: 20px;">User Management</h2>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead style="background: #f9f8f6;">
+                <tr>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for profile in profiles %}
+                <tr>
+                    <td><strong>{{ profile.user.username }}</strong></td>
+                    <td>{{ profile.user.email }}</td>
+                    <td>
+                        <span class="badge" style="background: {% if profile.role == 'admin' %}#2F6B3F{% elif profile.role == 'staff' %}#7FB77E{% else %}#999{% endif %}; color: white;">
+                            {{ profile.get_role_display }}
+                        </span>
+                    </td>
+                    <td>
+                        <a href="{% url 'user_change_role' profile.id %}" class="btn btn-sm btn-warning">Change Role</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center text-muted py-4">No users found</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

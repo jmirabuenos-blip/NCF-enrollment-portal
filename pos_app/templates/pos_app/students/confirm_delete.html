@@ -1,0 +1,23 @@
+{% extends 'pos_app/base.html' %}
+
+{% block title %}Delete Student - NCF CRM{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6">
+        <div class="card border-danger">
+            <div class="card-body">
+                <h4 class="card-title text-danger">Delete Student</h4>
+                <p class="card-text">Are you sure you want to delete <strong>{{ student.name }}</strong>?</p>
+                <p class="text-muted small">This action cannot be undone.</p>
+                
+                <form method="post" class="d-flex gap-2">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                    <a href="{% url 'student_list' %}" class="btn btn-secondary">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

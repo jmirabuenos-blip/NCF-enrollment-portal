@@ -1,0 +1,117 @@
+{% extends 'pos_app/base.html' %}
+
+{% block content %}
+<style>
+  .form-wrap { max-width: 520px; margin: 2.5rem auto; padding: 0 1rem; }
+  .form-header { margin-bottom: 2rem; }
+  .form-title { font-size: 22px; font-weight: 600; color: #111; margin: 0 0 4px; }
+  .form-sub { font-size: 13px; color: #999; margin: 0; }
+  .form-card { background: #fff; border: 1px solid #e8e8e8; border-radius: 12px; padding: 2rem; }
+  .field { margin-bottom: 1.25rem; }
+  .field label { display: block; font-size: 13px; font-weight: 500; color: #444; margin-bottom: 6px; }
+  .field input[type="text"],
+  .field input[type="number"],
+  .field input[type="email"],
+  .field select,
+  .field textarea {
+    width: 100%; box-sizing: border-box;
+    padding: 10px 13px; font-size: 14px; color: #111;
+    border: 1px solid #e0e0e0; border-radius: 8px;
+    background: #fff; outline: none; font-family: inherit;
+    transition: border-color 0.15s;
+  }
+  .field input:focus,
+  .field select:focus,
+  .field textarea:focus { border-color: #555; }
+  .field textarea { resize: vertical; min-height: 90px; }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .errorlist { list-style: none; padding: 0; margin: 5px 0 0; }
+  .errorlist li { font-size: 12px; color: #c0392b; }
+  .help-text { font-size: 12px; color: #aaa; margin-top: 4px; }
+  .divider { border: none; border-top: 1px solid #f0f0f0; margin: 1.5rem 0; }
+  .form-actions { display: flex; align-items: center; gap: 10px; }
+  .btn-save {
+    display: inline-flex; align-items: center; gap: 7px;
+    background: #111; color: #fff; border: none; border-radius: 8px;
+    padding: 10px 22px; font-size: 14px; font-weight: 500;
+    cursor: pointer; text-decoration: none; transition: background 0.12s; font-family: inherit;
+  }
+  .btn-save:hover { background: #333; }
+  .btn-save svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+  .btn-cancel {
+    display: inline-flex; align-items: center;
+    background: transparent; color: #888; border: 1px solid #e0e0e0;
+    border-radius: 8px; padding: 10px 18px; font-size: 14px;
+    cursor: pointer; text-decoration: none; transition: background 0.12s, color 0.12s; font-family: inherit;
+  }
+  .btn-cancel:hover { background: #f5f5f5; color: #333; }
+</style>
+
+<div class="form-wrap">
+
+  <div class="form-header">
+    <p class="form-title">{{ title }}</p>
+    <p class="form-sub">Fill in the product details below.</p>
+  </div>
+
+  <div class="form-card">
+    <form method="POST" novalidate>
+      {% csrf_token %}
+
+      {% for field in form %}
+        {% if field.name == 'price' or field.name == 'stock' %}
+          {% if forloop.first or form|length == 1 %}
+          <div class="field-row">
+          {% endif %}
+            <div class="field">
+              <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+              {{ field }}
+              {% if field.errors %}<ul class="errorlist">{% for e in field.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+              {% if field.help_text %}<p class="help-text">{{ field.help_text }}</p>{% endif %}
+            </div>
+          {% if field.name == 'stock' %}
+          </div>
+          {% endif %}
+        {% else %}
+          <div class="field">
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% if field.errors %}<ul class="errorlist">{% for e in field.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+            {% if field.help_text %}<p class="help-text">{{ field.help_text }}</p>{% endif %}
+          </div>
+        {% endif %}
+      {% endfor %}
+
+      <hr class="divider">
+
+      <div class="form-actions">
+        <button type="submit" class="btn-save">
+          <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+          Save product
+        </button>
+        <a href="{% url 'product_list' %}" class="btn-cancel">Cancel</a>
+      </div>
+
+    </form>
+  </div>
+
+</div>
+
+<script>
+  document.querySelectorAll('.form-card input, .form-card select, .form-card textarea').forEach(el => {
+    el.style.width = '100%';
+    el.style.boxSizing = 'border-box';
+    el.style.padding = '10px 13px';
+    el.style.fontSize = '14px';
+    el.style.color = '#111';
+    el.style.border = '1px solid #e0e0e0';
+    el.style.borderRadius = '8px';
+    el.style.background = '#fff';
+    el.style.outline = 'none';
+    el.style.fontFamily = 'inherit';
+    el.addEventListener('focus', () => el.style.borderColor = '#555');
+    el.addEventListener('blur',  () => el.style.borderColor = '#e0e0e0');
+  });
+</script>
+
+{% endblock %}

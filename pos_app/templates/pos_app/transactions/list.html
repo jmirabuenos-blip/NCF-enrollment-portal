@@ -1,0 +1,240 @@
+{% extends 'pos_app/base.html' %}
+
+{% block content %}
+<style>
+  .txn-wrap { padding: 1.5rem 0; }
+  .txn-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
+  .txn-title { font-size: 22px; font-weight: 600; color: #1a1a18; margin: 0 0 3px; }
+  .txn-count { font-size: 13px; color: #999; margin: 0; }
+  .search-row { display: flex; align-items: center; gap: 10px; margin-bottom: 1.25rem; }
+  .search-wrap { position: relative; flex: 1; }
+  .search-wrap i { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #bbb; font-size: 13px; pointer-events: none; }
+  .search-wrap input {
+    width: 100%; padding: 9px 12px 9px 34px; border: 1px solid #e0e0e0;
+    border-radius: 8px; background: #fff; color: #111; font-size: 14px;
+    box-sizing: border-box; outline: none;
+  }
+  .search-wrap input:focus { border-color: #888; }
+
+  .filter-row { display: flex; align-items: center; gap: 6px; margin-bottom: 1.25rem; flex-wrap: wrap; }
+  .filter-btn {
+    padding: 6px 14px; border-radius: 20px; border: 1px solid #e0e0e0;
+    background: #fff; color: #888; font-size: 12.5px; font-weight: 500;
+    cursor: pointer; transition: all 0.12s;
+  }
+  .filter-btn:hover { background: #f2f2f2; color: #333; }
+  .filter-btn.active { background: #1a1a18; color: #fff; border-color: #1a1a18; }
+
+  .summary-bar { display: flex; gap: 10px; margin-bottom: 1.25rem; }
+  .summary-card { flex: 1; background: #fff; border: 1px solid #e8e8e8; border-radius: 10px; padding: 14px 16px; }
+  .summary-label { font-size: 11px; font-weight: 600; color: #bbb; text-transform: uppercase; letter-spacing: 0.05em; margin: 0 0 4px; }
+  .summary-value { font-size: 20px; font-weight: 700; color: #1a1a18; margin: 0; }
+
+  .txn-table-wrap { border: 1px solid #e8e8e8; border-radius: 12px; overflow: hidden; background: #fff; }
+  table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+  col.c-receipt { width: 16%; }
+  col.c-customer { width: 18%; }
+  col.c-staff { width: 14%; }
+  col.c-total { width: 13%; }
+  col.c-status { width: 14%; }
+  col.c-date { width: 16%; }
+  col.c-act { width: 9%; }
+  thead tr { background: #f7f7f7; }
+  th {
+    padding: 11px 16px; font-size: 11px; font-weight: 600; color: #999;
+    text-align: left; border-bottom: 1px solid #efefef;
+    letter-spacing: 0.05em; text-transform: uppercase;
+  }
+  td {
+    padding: 13px 16px; font-size: 14px; color: #222;
+    border-bottom: 1px solid #f2f2f2; vertical-align: middle;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: #fafafa; }
+  .receipt-text { font-weight: 600; color: #1a1a18; font-family: monospace; font-size: 13px; }
+  .customer-text { color: #555; font-weight: 500; }
+  .walkin-text { color: #aaa; font-style: italic; }
+  .staff-text { color: #888; }
+  .total-text { font-weight: 600; color: #1a1a18; }
+  .date-text { color: #888; font-size: 13px; }
+  .status-pill { font-size: 12px; font-weight: 500; padding: 3px 10px; border-radius: 20px; display: inline-block; }
+  .status-completed { background: #e8f8f2; color: #1a7a4a; }
+  .status-pending   { background: #fef3e2; color: #8a4c0a; }
+  .status-voided    { background: #fde8e8; color: #a02020; }
+  .status-default   { background: #f2f2f2; color: #666; }
+  .actions-cell { display: flex; align-items: center; gap: 6px; }
+  .icon-btn {
+    width: 30px; height: 30px; border-radius: 7px; border: 1px solid #e0e0e0;
+    background: transparent; display: inline-flex; align-items: center;
+    justify-content: center; cursor: pointer; color: #999; text-decoration: none;
+    transition: background 0.12s, color 0.12s, border-color 0.12s;
+  }
+  .icon-btn:hover { background: #f2f2f2; color: #333; }
+  .icon-btn svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .empty-state { text-align: center; padding: 3.5rem 1rem; color: #bbb; font-size: 14px; }
+  .pagination-row { display: flex; align-items: center; justify-content: space-between; margin-top: 1rem; font-size: 13px; color: #888; }
+</style>
+
+<div class="txn-wrap">
+
+  <div class="txn-header">
+    <div>
+      <p class="txn-title">Transactions</p>
+      <p class="txn-count">{{ transactions|length }} total</p>
+    </div>
+  </div>
+
+  <div class="filter-row">
+    <button class="filter-btn active" onclick="setFilter('all', this)">All</button>
+    <button class="filter-btn" onclick="setFilter('today', this)">Today</button>
+    <button class="filter-btn" onclick="setFilter('week', this)">This Week</button>
+    <button class="filter-btn" onclick="setFilter('month', this)">This Month</button>
+  </div>
+
+  <div class="summary-bar">
+    <div class="summary-card">
+      <p class="summary-label">Transactions</p>
+      <p class="summary-value" id="summaryCount">0</p>
+    </div>
+    <div class="summary-card">
+      <p class="summary-label">Total Revenue</p>
+      <p class="summary-value" id="summaryRevenue">$0.00</p>
+    </div>
+    <div class="summary-card">
+      <p class="summary-label">Completed</p>
+      <p class="summary-value" id="summaryCompleted">0</p>
+    </div>
+  </div>
+
+  <div class="search-row">
+    <div class="search-wrap">
+      <i class="fas fa-search"></i>
+      <input type="text" id="searchInput" placeholder="Search by receipt, customer, staff…" onkeyup="applyFilters()" />
+    </div>
+  </div>
+
+  <div class="txn-table-wrap">
+    <table id="txnTable">
+      <colgroup>
+        <col class="c-receipt"><col class="c-customer"><col class="c-staff">
+        <col class="c-total"><col class="c-status"><col class="c-date"><col class="c-act">
+      </colgroup>
+      <thead>
+        <tr>
+          <th>Receipt #</th>
+          <th>Customer</th>
+          <th>Staff</th>
+          <th>Total</th>
+          <th>Status</th>
+          <th>Date</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for transaction in transactions %}
+        <tr data-date="{{ transaction.timestamp|date:'Y-m-d' }}"
+            data-total="{{ transaction.total_price }}"
+            data-status="{{ transaction.status }}">
+          <td><span class="receipt-text">{{ transaction.receipt_number }}</span></td>
+          <td>
+            {% if transaction.customer %}
+              <span class="customer-text">{{ transaction.customer.name }}</span>
+            {% else %}
+              <span class="walkin-text">Walk-in</span>
+            {% endif %}
+          </td>
+          <td><span class="staff-text">{{ transaction.user.username }}</span></td>
+          <td><span class="total-text">${{ transaction.total_price }}</span></td>
+          <td>
+            {% if transaction.status == 'completed' %}
+              <span class="status-pill status-completed">Completed</span>
+            {% elif transaction.status == 'pending' %}
+              <span class="status-pill status-pending">Pending</span>
+            {% elif transaction.status == 'voided' %}
+              <span class="status-pill status-voided">Voided</span>
+            {% else %}
+              <span class="status-pill status-default">{{ transaction.status }}</span>
+            {% endif %}
+          </td>
+          <td><span class="date-text">{{ transaction.timestamp|date:"M d, Y · H:i" }}</span></td>
+          <td>
+            <div class="actions-cell">
+              <a href="{% url 'receipt' transaction.id %}" class="icon-btn" title="View Receipt">
+                <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+              </a>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="7">
+            <div class="empty-state">No transactions yet. Make a sale to see them here.</div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="pagination-row">
+    <span id="rowCount"></span>
+  </div>
+
+</div>
+
+<script>
+  let currentFilter = 'all';
+
+  function getDateBounds(filter) {
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    if (filter === 'today') return { from: today, to: now };
+    if (filter === 'week') {
+      const from = new Date(today);
+      from.setDate(today.getDate() - today.getDay());
+      return { from, to: now };
+    }
+    if (filter === 'month') {
+      return { from: new Date(now.getFullYear(), now.getMonth(), 1), to: now };
+    }
+    return null;
+  }
+
+  function setFilter(filter, btn) {
+    currentFilter = filter;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    applyFilters();
+  }
+
+  function applyFilters() {
+    const q = document.getElementById('searchInput').value.toLowerCase();
+    const bounds = getDateBounds(currentFilter);
+    const rows = document.querySelectorAll('#txnTable tbody tr');
+    let count = 0, revenue = 0, completed = 0;
+
+    rows.forEach(row => {
+      if (!row.dataset.date) return;
+      const rowDate = new Date(row.dataset.date);
+      const inDate = !bounds || (rowDate >= bounds.from && rowDate <= bounds.to);
+      const inSearch = row.textContent.toLowerCase().includes(q);
+      const visible = inDate && inSearch;
+      row.style.display = visible ? '' : 'none';
+      if (visible) {
+        count++;
+        revenue += parseFloat(row.dataset.total) || 0;
+        if (row.dataset.status === 'completed') completed++;
+      }
+    });
+
+    document.getElementById('summaryCount').textContent = count;
+    document.getElementById('summaryRevenue').textContent = '$' + revenue.toFixed(2);
+    document.getElementById('summaryCompleted').textContent = completed;
+    document.getElementById('rowCount').textContent = count + ' result' + (count !== 1 ? 's' : '');
+  }
+
+  document.addEventListener('DOMContentLoaded', applyFilters);
+</script>
+
+{% endblock %}

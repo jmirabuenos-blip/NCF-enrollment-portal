@@ -1,0 +1,288 @@
+{% extends 'pos_app/base.html' %}
+
+{% block title %}Point of Sale — POS CRM{% endblock %}
+
+{% block content %}
+<style>
+  .pos-wrap { display: grid; grid-template-columns: 1fr 380px; gap: 16px; align-items: start; }
+
+  .products-panel { background: #fff; border: 1px solid #e8e6e1; border-radius: 12px; overflow: hidden; }
+  .products-header { padding: 1rem 1.25rem; border-bottom: 1px solid #f0ede8; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .products-title { font-size: 14px; font-weight: 600; color: #1a1a18; display: flex; align-items: center; gap: 7px; margin: 0; }
+  .products-count { font-size: 12px; color: #aaa; background: #f5f3ef; padding: 3px 9px; border-radius: 20px; }
+  .search-wrap { position: relative; flex: 1; min-width: 160px; }
+  .search-wrap i { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #bbb; font-size: 13px; pointer-events: none; }
+  .search-wrap input {
+    width: 100%; padding: 8px 12px 8px 32px; border: 1px solid #e8e6e1;
+    border-radius: 8px; font-size: 13px; color: #1a1a18; outline: none;
+    background: #fafaf8; box-sizing: border-box;
+  }
+  .search-wrap input:focus { border-color: #aaa; background: #fff; }
+
+  .product-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 1.25rem; }
+  .product-card {
+    border: 1px solid #e8e6e1; border-radius: 10px; padding: 12px;
+    cursor: pointer; transition: border-color 0.12s, background 0.12s;
+    background: #fafaf8;
+  }
+  .product-card:hover { border-color: #1a1a18; background: #fff; }
+  .product-card.out-of-stock { opacity: 0.45; cursor: not-allowed; pointer-events: none; }
+  .product-name { font-size: 13px; font-weight: 500; color: #1a1a18; margin-bottom: 4px; line-height: 1.3; }
+  .product-cat { font-size: 11px; color: #aaa; margin-bottom: 6px; }
+  .product-footer { display: flex; align-items: center; justify-content: space-between; }
+  .product-price { font-size: 14px; font-weight: 600; color: #1a1a18; }
+  .stock-pill { font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 20px; }
+  .stock-ok       { background: #e8f8f2; color: #1a7a4a; }
+  .stock-low      { background: #fef3e2; color: #8a4c0a; }
+  .stock-critical { background: #fde8e8; color: #a02020; }
+
+  .products-empty { text-align: center; padding: 3rem; color: #bbb; font-size: 14px; }
+
+  .cart-panel {
+    background: #fff; border: 1px solid #e8e6e1; border-radius: 12px;
+    overflow: hidden; position: sticky; top: 20px;
+  }
+  .cart-header { padding: 1rem 1.25rem; border-bottom: 1px solid #f0ede8; display: flex; align-items: center; justify-content: space-between; }
+  .cart-title { font-size: 14px; font-weight: 600; color: #1a1a18; margin: 0; }
+  .clear-btn {
+    font-size: 12px; color: #a02020; border: 1px solid #fde8e8; background: transparent;
+    border-radius: 7px; padding: 4px 10px; cursor: pointer; transition: background 0.12s;
+  }
+  .clear-btn:hover { background: #fde8e8; }
+
+  .cart-body { padding: 1rem 1.25rem; }
+
+  .field-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: #aaa; margin-bottom: 5px; display: block; }
+  .cart-body select {
+    width: 100%; padding: 8px 10px; border: 1px solid #e8e6e1; border-radius: 8px;
+    font-size: 13px; color: #1a1a18; background: #fafaf8; outline: none; box-sizing: border-box;
+  }
+  .cart-body select:focus { border-color: #aaa; }
+
+  .cart-divider { border: none; border-top: 1px solid #f0ede8; margin: 12px 0; }
+
+  .cart-empty-state { text-align: center; padding: 2rem 1rem; color: #ccc; font-size: 13px; }
+  .cart-empty-state i { font-size: 28px; margin-bottom: 8px; display: block; }
+
+  .cart-item {
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    padding: 9px 0; border-bottom: 1px solid #f7f5f2;
+  }
+  .cart-item:last-of-type { border-bottom: none; }
+  .cart-item-info { flex: 1; min-width: 0; }
+  .cart-item-name { font-size: 13px; font-weight: 500; color: #1a1a18; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cart-item-meta { font-size: 12px; color: #aaa; margin-top: 1px; }
+  .cart-item-total { font-size: 13px; font-weight: 600; color: #1a7a4a; white-space: nowrap; }
+  .remove-btn {
+    width: 24px; height: 24px; border-radius: 6px; border: 1px solid #e8e6e1;
+    background: transparent; cursor: pointer; color: #bbb; font-size: 12px;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    transition: background 0.12s, color 0.12s, border-color 0.12s;
+  }
+  .remove-btn:hover { background: #fde8e8; color: #a02020; border-color: #fde8e8; }
+
+  .cart-footer { padding: 1rem 1.25rem; border-top: 1px solid #f0ede8; }
+  .total-row { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 12px; }
+  .total-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: #aaa; }
+  .total-value { font-size: 24px; font-weight: 600; color: #1a1a18; }
+  .checkout-btn {
+    width: 100%; padding: 11px; background: #1a1a18; color: #fff;
+    border: none; border-radius: 9px; font-size: 14px; font-weight: 500;
+    cursor: pointer; transition: background 0.12s; display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .checkout-btn:hover { background: #333; }
+  .checkout-btn:disabled { background: #d0cec9; cursor: not-allowed; }
+
+  .history-link {
+    font-size: 12px; color: #aaa; text-decoration: none; display: flex; align-items: center; gap: 5px;
+  }
+  .history-link:hover { color: #1a1a18; }
+
+  @media (max-width: 900px) {
+    .pos-wrap { grid-template-columns: 1fr; }
+    .cart-panel { position: static; }
+    .product-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
+  <div>
+    <p style="font-size:20px;font-weight:600;color:#1a1a18;margin:0 0 3px;">Point of Sale</p>
+    <p style="font-size:13px;color:#aaa;margin:0;">Click a product to add it to the cart.</p>
+  </div>
+  <a href="{% url 'transaction_list' %}" class="history-link">
+    <i class="fas fa-history"></i> Transaction history
+  </a>
+</div>
+
+<div class="pos-wrap">
+
+  <div class="products-panel">
+    <div class="products-header">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <p class="products-title"><i class="fas fa-box" style="color:#aaa;"></i> Products</p>
+        <span class="products-count">{{ products|length }} available</span>
+      </div>
+      <div class="search-wrap">
+        <i class="fas fa-search"></i>
+        <input type="text" id="product-search" placeholder="Search products…">
+      </div>
+    </div>
+
+    <div class="product-grid" id="product-grid">
+      {% for product in products %}
+      <div class="product-grid-item" data-search="{{ product.name|lower }}">
+        <div class="product-card {% if product.stock == 0 %}out-of-stock{% endif %}"
+             data-id="{{ product.id }}"
+             data-name="{{ product.name }}"
+             data-price="{{ product.price }}"
+             data-stock="{{ product.stock }}">
+          <div class="product-name">{{ product.name }}</div>
+          {% if product.category %}<div class="product-cat">{{ product.category }}</div>{% endif %}
+          <div class="product-footer">
+            <span class="product-price">${{ product.price }}</span>
+            {% if product.stock == 0 %}
+              <span class="stock-pill stock-critical">Out</span>
+            {% elif product.stock <= 5 %}
+              <span class="stock-pill stock-critical">{{ product.stock }} left</span>
+            {% elif product.stock <= 10 %}
+              <span class="stock-pill stock-low">{{ product.stock }} left</span>
+            {% else %}
+              <span class="stock-pill stock-ok">{{ product.stock }}</span>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <div class="products-empty" style="grid-column:1/-1;">
+        <i class="fas fa-box-open" style="font-size:28px;margin-bottom:8px;display:block;"></i>
+        No products available.
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="cart-panel">
+    <div class="cart-header">
+      <p class="cart-title">Cart</p>
+      <button class="clear-btn" onclick="clearCart()"><i class="fas fa-trash" style="margin-right:4px;"></i>Clear</button>
+    </div>
+
+    <div class="cart-body">
+      <form method="POST" id="pos-form">
+        {% csrf_token %}
+
+        <label class="field-label">Customer</label>
+        <select name="customer">
+          <option value="">Walk-in customer</option>
+          {% for customer in customers %}
+            <option value="{{ customer.id }}">{{ customer.name }}</option>
+          {% endfor %}
+        </select>
+
+        <hr class="cart-divider">
+
+        <div id="cart-items">
+          <div class="cart-empty-state" id="cart-empty">
+            <i class="fas fa-shopping-cart"></i>
+            Cart is empty<br>
+            <span style="font-size:12px;">Click a product to add</span>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <div class="cart-footer">
+      <div class="total-row">
+        <span class="total-label">Total</span>
+        <span class="total-value" id="cart-total">$0.00</span>
+      </div>
+      <button class="checkout-btn" id="checkout-btn" disabled onclick="document.getElementById('pos-form').submit()">
+        <i class="fas fa-check-circle"></i> Complete sale
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  let cart = [];
+
+  document.querySelectorAll('.product-card:not(.out-of-stock)').forEach(card => {
+    card.addEventListener('click', function () {
+      const id = parseInt(this.dataset.id);
+      const name = this.dataset.name;
+      const price = parseFloat(this.dataset.price);
+      const stock = parseInt(this.dataset.stock);
+
+      let qty = prompt(`Add "${name}" to cart\n$${price} · ${stock} in stock\n\nQuantity:`, 1);
+      if (qty === null) return;
+      qty = parseInt(qty);
+      if (isNaN(qty) || qty <= 0) return alert('Enter a valid quantity.');
+      if (qty > stock) return alert(`Only ${stock} units available.`);
+
+      const existing = cart.find(i => i.id === id);
+      if (existing) {
+        if (existing.quantity + qty > stock) return alert(`Only ${stock} units available.`);
+        existing.quantity += qty;
+      } else {
+        cart.push({ id, name, price, quantity: qty, stock });
+      }
+      updateCart();
+    });
+  });
+
+  function updateCart() {
+    const cartDiv = document.getElementById('cart-items');
+    const checkoutBtn = document.getElementById('checkout-btn');
+
+    if (cart.length === 0) {
+      cartDiv.innerHTML = `<div class="cart-empty-state"><i class="fas fa-shopping-cart"></i>Cart is empty<br><span style="font-size:12px;">Click a product to add</span></div>`;
+      document.getElementById('cart-total').textContent = '$0.00';
+      checkoutBtn.disabled = true;
+      return;
+    }
+
+    let total = 0;
+    let html = '<div style="max-height:280px;overflow-y:auto;">';
+    cart.forEach((item, i) => {
+      const itemTotal = item.price * item.quantity;
+      total += itemTotal;
+      html += `
+        <div class="cart-item">
+          <div class="cart-item-info">
+            <div class="cart-item-name">${item.name}</div>
+            <div class="cart-item-meta">$${item.price.toFixed(2)} × ${item.quantity}</div>
+          </div>
+          <span class="cart-item-total">$${itemTotal.toFixed(2)}</span>
+          <button type="button" class="remove-btn" onclick="removeFromCart(${i})"><i class="fas fa-times"></i></button>
+          <input type="hidden" name="product_id" value="${item.id}">
+          <input type="hidden" name="quantity" value="${item.quantity}">
+        </div>`;
+    });
+    html += '</div>';
+
+    cartDiv.innerHTML = html;
+    document.getElementById('cart-total').textContent = `$${total.toFixed(2)}`;
+    checkoutBtn.disabled = false;
+  }
+
+  function removeFromCart(index) {
+    cart.splice(index, 1);
+    updateCart();
+  }
+
+  function clearCart() {
+    if (!cart.length) return;
+    if (confirm('Clear all items?')) { cart = []; updateCart(); }
+  }
+
+  document.getElementById('product-search').addEventListener('input', function () {
+    const q = this.value.toLowerCase();
+    document.querySelectorAll('.product-grid-item').forEach(item => {
+      item.style.display = item.dataset.search.includes(q) ? '' : 'none';
+    });
+  });
+</script>
+
+{% endblock %}

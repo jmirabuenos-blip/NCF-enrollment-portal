@@ -1,0 +1,74 @@
+{% extends 'pos_app/base.html' %}
+
+{% block content %}
+<style>
+  .del-wrap { padding: 1.5rem 0; max-width: 480px; margin: 0 auto; }
+  .del-card { background: #fff; border: 1px solid #e8e8e8; border-radius: 12px; overflow: hidden; }
+  .del-header { display: flex; align-items: center; gap: 12px; padding: 20px 24px; border-bottom: 1px solid #f2f2f2; }
+  .del-icon { width: 38px; height: 38px; border-radius: 9px; background: #fde8e8; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .del-icon svg { width: 16px; height: 16px; stroke: #a02020; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .del-title { font-size: 15px; font-weight: 600; color: #1a1a18; margin: 0 0 2px; }
+  .del-subtitle { font-size: 12.5px; color: #999; margin: 0; }
+  .del-body { padding: 22px 24px; }
+  .del-body p { font-size: 14px; color: #555; margin: 0 0 6px; line-height: 1.55; }
+  .del-product-name { font-size: 15px; font-weight: 600; color: #1a1a18; margin: 0 0 14px !important; }
+  .del-warning { display: flex; align-items: flex-start; gap: 8px; background: #fef3e2; border-radius: 8px; padding: 10px 13px; }
+  .del-warning svg { width: 14px; height: 14px; stroke: #8a4c0a; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; margin-top: 1px; }
+  .del-warning span { font-size: 12.5px; color: #8a4c0a; line-height: 1.5; }
+  .del-footer { display: flex; align-items: center; justify-content: flex-end; gap: 8px; padding: 16px 24px; border-top: 1px solid #f2f2f2; }
+  .btn-cancel {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: transparent; color: #555; border: 1px solid #e0e0e0;
+    border-radius: 8px; padding: 8px 16px; font-size: 13px; font-weight: 500;
+    text-decoration: none; cursor: pointer; transition: background 0.12s, color 0.12s;
+  }
+  .btn-cancel:hover { background: #f2f2f2; color: #222; }
+  .btn-delete {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: #a02020; color: #fff; border: none;
+    border-radius: 8px; padding: 8px 18px; font-size: 13px; font-weight: 500;
+    cursor: pointer; transition: background 0.12s;
+  }
+  .btn-delete:hover { background: #8a1a1a; }
+  .btn-delete svg, .btn-cancel svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+</style>
+
+<div class="del-wrap">
+  <div class="del-card">
+
+    <div class="del-header">
+      <div class="del-icon">
+        <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+      </div>
+      <div>
+        <p class="del-title">Delete Product</p>
+        <p class="del-subtitle">This action cannot be undone</p>
+      </div>
+    </div>
+
+    <div class="del-body">
+      <p>You are about to permanently delete:</p>
+      <p class="del-product-name">"{{ product.name }}"</p>
+      <div class="del-warning">
+        <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <span>Deleting this product will remove it and all associated data from the system permanently.</span>
+      </div>
+    </div>
+
+    <div class="del-footer">
+      <a href="{% url 'product_list' %}" class="btn-cancel">
+        <svg viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        Cancel
+      </a>
+      <form method="post" style="margin:0;">
+        {% csrf_token %}
+        <button type="submit" class="btn-delete">
+          <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+          Delete product
+        </button>
+      </form>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

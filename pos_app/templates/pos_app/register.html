@@ -1,0 +1,33 @@
+{% extends 'pos_app/base.html' %}
+
+{% block title %}Register - NCF CRM{% endblock %}
+
+{% block content %}
+<div style="max-width: 400px; margin: 60px auto;">
+    <div class="card">
+        <div class="card-body p-4">
+            <h3 style="color: #2F6B3F; margin-bottom: 20px; text-align: center;">Register</h3>
+            
+            <form method="post">
+                {% csrf_token %}
+                {% for field in form %}
+                    <div class="mb-3">
+                        <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}
+                            <div class="text-danger small mt-1">{{ field.errors }}</div>
+                        {% endif %}
+                        {% if field.help_text %}
+                            <small class="form-text text-muted d-block mt-1">{{ field.help_text|safe }}</small>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+                <button type="submit" class="btn btn-primary w-100">Register</button>
+            </form>
+
+            <hr>
+            <p class="text-center mb-0">Already have an account? <a href="{% url 'login' %}">Login here</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}

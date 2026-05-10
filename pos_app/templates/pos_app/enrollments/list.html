@@ -1,0 +1,58 @@
+{% extends 'pos_app/base.html' %}
+
+{% block title %}Enrollments - NCF Portal{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 style="color: #2F6B3F; margin: 0;">My Enrollments</h2>
+    <a href="{% url 'enrollment_create' %}" class="btn btn-primary">
+        <i class="fas fa-plus"></i> Enroll in Course
+    </a>
+</div>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead style="background: #f9f8f6;">
+                <tr>
+                    <th>Student</th>
+                    <th>Course</th>
+                    <th>Status</th>
+                    <th>Grade</th>
+                    <th>Enrolled Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for enrollment in enrollments %}
+                <tr>
+                    <td><strong>{{ enrollment.student.name }}</strong></td>
+                    <td>{{ enrollment.course.code }} - {{ enrollment.course.name }}</td>
+                    <td>
+                        <span class="badge" style="background: {% if enrollment.status == 'pending' %}#F7C85C{% elif enrollment.status == 'enrolled' %}#7FB77E{% elif enrollment.status == 'completed' %}#2F6B3F{% else %}#999{% endif %}; color: {% if enrollment.status == 'pending' %}#2F6B3F{% else %}white{% endif %};">
+                            {{ enrollment.get_status_display }}
+                        </span>
+                    </td>
+                    <td>{{ enrollment.grade|default:'-' }}</td>
+                    <td>{{ enrollment.enrolled_date|date:"M d, Y" }}</td>
+                    <td>
+                        {% if enrollment.status == 'pending' %}
+                        <a href="{% url 'enrollment_cancel' enrollment.id %}" class="btn btn-sm btn-danger">Cancel</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center text-muted py-4">
+                        No enrollments found. 
+                        {% if not user.student_profile %}
+                        <a href="{% url 'student_create' %}">Create your student profile first</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,119 @@
+DIS IS A SETUP GUIDE
+
+NCF ENROLLMENT PORTAL -
+
+1. python -m venv venv
+2. venv\Scripts\activate
+3. pip install -r requirements.txt
+4. python manage.py migrate
+5. python manage.py runserver
+6. Open http://localhost:8000
+
+
+
+SAMPLE ACCOUNTS (Already Created)
+
+ADMIN ACCOUNT:
+Username: admin
+Password: admin123
+Access: Full system management
+
+STAFF ACCOUNT:
+Username: staff
+Password: staff123
+Access: Manage students and enrollments
+
+USER ACCOUNT:
+Username: user
+Password: user123
+Access: Create profile, enroll in courses, manage own enrollments
+
+ROLE DIFFERENCES
+
+ADMIN:
+- Create, edit, delete departments
+- Create, edit, delete courses
+- Create, edit, delete students
+- View and manage all enrollments
+- Manage user roles
+- Full system access
+
+STAFF:
+- Create, edit students
+- View and manage all enrollments
+- View courses and departments
+- Cannot manage courses or departments
+- Cannot delete anything
+
+USER (STUDENTS):
+- Create their own student profile
+- Edit their own profile
+- Choose their department
+- Enroll in available courses
+- View their enrollments
+- Cancel pending enrollments
+- View available courses
+- Cannot see other students' data
+
+HOW TO USE AS A STUDENT (USER ROLE)
+
+1. Register an account
+2. Login with your credentials
+3. Click "Create Profile" in sidebar
+4. Fill in your information:
+   - Name
+   - Student Number (e.g., 24-04804)
+   - Email
+   - Phone
+   - Choose your department
+   - Gender, date of birth, address
+5. Click "Available Courses" to see courses
+6. Click "My Enrollments" then "Enroll in Course"
+7. Select a course and click "Enroll"
+8. Your enrollment will be in "Pending" status
+9. You can cancel pending enrollments anytime
+10. Once approved by staff/admin, status changes to "Enrolled"
+
+
+
+SAMPLE DATA INCLUDED
+
+Departments:
+- College of Computer Studies (CCS)
+- College of Engineering (COE)
+
+Courses:
+- CS101 - Introduction to Programming
+- CS102 - Data Structures
+- ENG101 - Engineering Mathematics
+
+Students:
+- Juan Dela Cruz (24-04804)
+- Maria Santos (24-05123)
+
+Enrollments:
+- Juan enrolled in CS101 (Pending)
+- Maria enrolled in CS102 (Pending)
+
+MAIN FEATURES
+
+Dashboard: http://localhost:8000/dashboard/
+My Profile: http://localhost:8000/students/create/ (for new users)
+My Enrollments: http://localhost:8000/enrollments/
+Available Courses: http://localhost:8000/courses/
+Students: http://localhost:8000/students/ (Admin/Staff only)
+Departments: http://localhost:8000/departments/ (Admin only)
+Users: http://localhost:8000/users/ (Admin only)
+
+TROUBLESHOOTING (CUZ BEEN THERE DONE DAT.. SAVE URSELF DA TROUBLE AND READ THIS)
+
+Port 8000 in use:
+  python manage.py runserver 8001
+
+Module not found:
+  pip install -r requirements.txt
+
+Database error:
+  Delete db.sqlite3 and run: python manage.py migrate
+
+

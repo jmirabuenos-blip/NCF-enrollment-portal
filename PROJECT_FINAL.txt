@@ -1,0 +1,130 @@
+                    NCF ENROLLMENT PORTAL - FINAL VERSION
+
+PROJECT STATUS: COMPLETE AND READY
+SERVER: http://localhost:8000 (RUNNING)
+DATE: May 9, 2026
+
+                         MAJOR IMPROVEMENTS - FINAL REVISION YAYY
+
+
+BEFORE (Wrong):
+- User: View-only, couldn't do anything... BORINGGG
+- Felt flat and useless LIKE MY BRO.. CHARIZ
+
+AFTER (Correct):
+- User: Can create profile, enroll in courses, manage own enrollments
+- Staff: Manage students and enrollments
+- Admin: Full system access
+
+THIS IS NOW A REAL ENROLLMENT PORTAL! YAYYYY SAIKI WILL BE PROUD XD
+
+USER FEATURES
+
+1. CREATE STUDENT PROFILE:
+   - Users can create their own student profile
+   - Choose their department
+   - Fill in personal information
+   - Student number format: 24-04804
+
+2. ENROLL IN COURSES:
+   - View available courses
+   - Enroll in courses they want
+   - Enrollment starts as "Pending"
+   - Staff/Admin can approve to "Enrolled"
+
+3. MANAGE OWN ENROLLMENTS:
+   - View their enrollments
+   - Cancel pending enrollments
+   - Cannot cancel enrolled/completed courses
+   - See enrollment status (Pending, Enrolled, Completed, Dropped)
+
+4. EDIT OWN PROFILE:
+   - Update their information
+   - Change department
+   - Update contact details
+   - Cannot edit other students
+
+5. VIEW AVAILABLE COURSES:
+   - See all courses offered
+   - Check course details
+   - Decide which to enroll in
+
+ENROLLMENT STATUSES
+
+PENDING: Just enrolled, waiting for approval
+ENROLLED: Approved by staff/admin, actively taking course
+COMPLETED: Finished the course
+DROPPED: Cancelled or withdrawn
+
+Users can only cancel PENDING enrollments!
+
+ROLE PERMISSIONS (FINALIZED)
+
+ADMIN (admin/admin123):
+- Manage departments
+- Manage courses
+- Manage all students
+- View and manage all enrollments
+- Manage user roles
+- Full system access
+
+STAFF (staff/staff123):
+- Manage all students
+- View and manage all enrollments
+- Approve enrollments (change status)
+- View courses and departments
+- Cannot manage courses or departments
+
+USER (user/user123):
+- Create own student profile
+- Edit own profile
+- Enroll in courses
+- View own enrollments
+- Cancel pending enrollments
+- View available courses
+- Cannot see other students' data
+
+SAMPLE ACCOUNTS
+===============
+
+ADMIN: admin / admin123
+- Full system management
+
+STAFF: staff / staff123
+- Student and enrollment management
+
+USER: user / user123
+- Student self-service
+
+HOW TO USE AS A STUDENT
+=======================
+
+1. Register an account at http://localhost:8000/register/
+2. Login with your credentials
+3. Click "Create Profile" in sidebar
+4. Fill in your information and choose department
+5. Click "Available Courses" to browse courses
+6. Click "My Enrollments" then "Enroll in Course"
+7. Select a course and click "Enroll"
+8. Your enrollment will be "Pending"
+9. Wait for staff/admin to approve
+10. You can cancel pending enrollments anytime
+
+SAMPLE DATA
+
+Students:
+- Juan Dela Cruz (24-04804) - Linked to user account
+- Maria Santos (24-05123) - Linked to user account
+
+Departments: CCS, COE
+Courses: CS101, CS102, ENG101
+Enrollments: 2 pending
+
+NAVIGATION FOR USERS
+
+Sidebar shows:
+- Dashboard
+- My Profile (or Create Profile if new)
+- My Enrollments
+- Available Courses
+

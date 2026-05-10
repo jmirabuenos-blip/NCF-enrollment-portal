@@ -1,0 +1,111 @@
+{% extends 'pos_app/base.html' %}
+
+{% block content %}
+<style>
+  .role-wrap { padding: 1.5rem 0; max-width: 440px; margin: 0 auto; }
+  .role-card { background: #fff; border: 1px solid #e8e8e8; border-radius: 12px; overflow: hidden; }
+  .role-header { display: flex; align-items: center; gap: 12px; padding: 20px 24px; border-bottom: 1px solid #f2f2f2; }
+  .role-icon { width: 38px; height: 38px; border-radius: 9px; background: #f0ede8; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .role-icon svg { width: 16px; height: 16px; stroke: #1a1a18; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .role-title { font-size: 15px; font-weight: 600; color: #1a1a18; margin: 0 0 2px; }
+  .role-subtitle { font-size: 12.5px; color: #999; margin: 0; }
+
+  .role-body { padding: 22px 24px; }
+  .field-label { font-size: 11px; font-weight: 600; color: #999; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 8px; }
+
+  .role-options { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+  .role-option { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 1px solid #e8e8e8; border-radius: 9px; cursor: pointer; transition: border-color 0.12s, background 0.12s; }
+  .role-option:hover { background: #fafafa; border-color: #ccc; }
+  .role-option input[type="radio"] { accent-color: #1a1a18; width: 15px; height: 15px; flex-shrink: 0; cursor: pointer; }
+  .role-option input[type="radio"]:checked + .role-option-body { color: #1a1a18; }
+  .role-option:has(input:checked) { border-color: #1a1a18; background: #fafafa; }
+  .role-option-body { flex: 1; }
+  .role-option-name { font-size: 13.5px; font-weight: 500; color: #1a1a18; margin: 0 0 2px; }
+  .role-option-desc { font-size: 12px; color: #aaa; margin: 0; }
+  .role-badge { font-size: 11px; font-weight: 500; padding: 2px 9px; border-radius: 20px; flex-shrink: 0; }
+  .badge-admin { background: #fde8e8; color: #a02020; }
+  .badge-staff { background: #fef3e2; color: #8a4c0a; }
+  .badge-user  { background: #f2f2f2; color: #666; }
+
+  .role-footer { display: flex; align-items: center; justify-content: flex-end; gap: 8px; padding: 16px 24px; border-top: 1px solid #f2f2f2; }
+  .btn-cancel {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: transparent; color: #555; border: 1px solid #e0e0e0;
+    border-radius: 8px; padding: 8px 16px; font-size: 13px; font-weight: 500;
+    text-decoration: none; transition: background 0.12s, color 0.12s;
+  }
+  .btn-cancel:hover { background: #f2f2f2; color: #222; }
+  .btn-save {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: #1a1a18; color: #fff; border: none;
+    border-radius: 8px; padding: 8px 18px; font-size: 13px; font-weight: 500;
+    cursor: pointer; transition: background 0.12s;
+  }
+  .btn-save:hover { background: #333; }
+  .btn-cancel svg, .btn-save svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+</style>
+
+<div class="role-wrap">
+  <div class="role-card">
+
+    <div class="role-header">
+      <div class="role-icon">
+        <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      </div>
+      <div>
+        <p class="role-title">Change Role</p>
+        <p class="role-subtitle">{{ profile.user.username }}</p>
+      </div>
+    </div>
+
+    <div class="role-body">
+      <form method="POST" id="roleForm">
+        {% csrf_token %}
+        <span class="field-label">Select Role</span>
+        <div class="role-options">
+
+          <label class="role-option">
+            <input type="radio" name="role" value="user" {% if profile.role == 'user' %}checked{% endif %}>
+            <div class="role-option-body">
+              <p class="role-option-name">User</p>
+              <p class="role-option-desc">Read-only access</p>
+            </div>
+            <span class="role-badge badge-user">User</span>
+          </label>
+
+          <label class="role-option">
+            <input type="radio" name="role" value="staff" {% if profile.role == 'staff' %}checked{% endif %}>
+            <div class="role-option-body">
+              <p class="role-option-name">Staff</p>
+              <p class="role-option-desc">POS access + edit records</p>
+            </div>
+            <span class="role-badge badge-staff">Staff</span>
+          </label>
+
+          <label class="role-option">
+            <input type="radio" name="role" value="admin" {% if profile.role == 'admin' %}checked{% endif %}>
+            <div class="role-option-body">
+              <p class="role-option-name">Admin</p>
+              <p class="role-option-desc">Full access</p>
+            </div>
+            <span class="role-badge badge-admin">Admin</span>
+          </label>
+
+        </div>
+      </form>
+    </div>
+
+    <div class="role-footer">
+      <a href="{% url 'user_list' %}" class="btn-cancel">
+        <svg viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        Cancel
+      </a>
+      <button type="submit" form="roleForm" class="btn-save">
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        Save Role
+      </button>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

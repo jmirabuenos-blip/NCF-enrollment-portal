@@ -1,0 +1,127 @@
+{% extends 'pos_app/base.html' %}
+
+{% block title %}Dashboard - NCF CRM{% endblock %}
+
+{% block content %}
+<style>
+    .stat-card { background: #fff; border: 1px solid #e8e6e1; border-radius: 12px; padding: 20px; display: flex; align-items: center; gap: 15px; }
+    .stat-icon { width: 50px; height: 50px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+    .stat-value { font-size: 24px; font-weight: 600; color: #2F6B3F; }
+    .stat-label { font-size: 12px; color: #999; text-transform: uppercase; }
+</style>
+
+<h2 style="color: #2F6B3F; margin-bottom: 20px;">Dashboard</h2>
+
+<div class="row mb-4">
+    <div class="col-md-3 mb-3">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: rgba(47, 107, 63, 0.1); color: #2F6B3F;">
+                <i class="fas fa-building"></i>
+            </div>
+            <div>
+                <div class="stat-label">Departments</div>
+                <div class="stat-value">{{ total_departments }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: rgba(127, 183, 126, 0.1); color: #7FB77E;">
+                <i class="fas fa-book"></i>
+            </div>
+            <div>
+                <div class="stat-label">Courses</div>
+                <div class="stat-value">{{ total_courses }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: rgba(247, 200, 92, 0.1); color: #F7C85C;">
+                <i class="fas fa-users"></i>
+            </div>
+            <div>
+                <div class="stat-label">Students</div>
+                <div class="stat-value">{{ total_students }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: rgba(47, 107, 63, 0.15); color: #2F6B3F;">
+                <i class="fas fa-clipboard-list"></i>
+            </div>
+            <div>
+                <div class="stat-label">Enrollments</div>
+                <div class="stat-value">{{ total_enrollments }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Departments</h5>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-sm mb-0">
+                    <thead style="background: #f9f8f6;">
+                        <tr>
+                            <th>Name</th>
+                            <th>Code</th>
+                            <th>Students</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for dept in departments %}
+                        <tr>
+                            <td>{{ dept.name }}</td>
+                            <td><strong>{{ dept.code }}</strong></td>
+                            <td>{{ dept.student_count }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="3" class="text-center text-muted py-3">No departments</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Recent Students</h5>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-sm mb-0">
+                    <thead style="background: #f9f8f6;">
+                        <tr>
+                            <th>Name</th>
+                            <th>ID</th>
+                            <th>Department</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for student in recent_students %}
+                        <tr>
+                            <td>{{ student.name }}</td>
+                            <td><strong>{{ student.student_id }}</strong></td>
+                            <td>{{ student.department.code }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="3" class="text-center text-muted py-3">No students</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
