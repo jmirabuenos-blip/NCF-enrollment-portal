@@ -28,10 +28,8 @@ class EnrollmentAdmin(admin.ModelAdmin):
     list_display = ['student', 'course', 'status', 'grade', 'enrolled_date']
     search_fields = ['student__name', 'course__code']
     list_filter = ['status', 'enrolled_date']
-    list_editable = ['status', 'grade']
 
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
     list_display = ['user', 'role']
     list_filter = ['role']
-    list_editable = ['role']
