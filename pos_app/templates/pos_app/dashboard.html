@@ -4,124 +4,320 @@
 
 {% block content %}
 <style>
-    .stat-card { background: #fff; border: 1px solid #e8e6e1; border-radius: 12px; padding: 20px; display: flex; align-items: center; gap: 15px; }
-    .stat-icon { width: 50px; height: 50px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
-    .stat-value { font-size: 24px; font-weight: 600; color: #2F6B3F; }
-    .stat-label { font-size: 12px; color: #999; text-transform: uppercase; }
+    .page-header {
+        margin-bottom: 28px;
+        padding-bottom: 18px;
+        border-bottom: 1px solid #E2DED6;
+        display: flex; align-items: flex-end; justify-content: space-between;
+        flex-wrap: wrap; gap: 12px;
+    }
+
+    .page-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 28px; font-weight: 700;
+        color: #1E4D2B; line-height: 1.2;
+    }
+
+    .page-subtitle {
+        font-size: 13px; color: #6B6860; margin-top: 3px;
+    }
+
+    .date-badge {
+        font-size: 12px; color: #6B6860;
+        background: #F0EDE6; border: 1px solid #E2DED6;
+        border-radius: 20px; padding: 5px 14px;
+        display: flex; align-items: center; gap-6px;
+    }
+
+    /* ── STAT CARDS ── */
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+        margin-bottom: 28px;
+    }
+
+    .stat-card {
+        background: #fff;
+        border: 1px solid #E2DED6;
+        border-radius: 12px;
+        padding: 20px 22px;
+        display: flex; align-items: center; gap: 16px;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+        transition: box-shadow 0.2s, transform 0.2s;
+        position: relative; overflow: hidden;
+    }
+
+    .stat-card::after {
+        content: ''; position: absolute;
+        top: 0; left: 0; right: 0; height: 3px;
+        border-radius: 12px 12px 0 0;
+    }
+
+    .stat-card.green::after  { background: #2F6B3F; }
+    .stat-card.gold::after   { background: #C9973A; }
+    .stat-card.blue::after   { background: #3b6fd4; }
+    .stat-card.teal::after   { background: #00897b; }
+
+    .stat-card:hover { box-shadow: 0 6px 20px rgba(0,0,0,0.09); transform: translateY(-2px); }
+
+    .stat-icon {
+        width: 46px; height: 46px; border-radius: 10px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 18px; flex-shrink: 0;
+    }
+
+    .stat-icon.green  { background: #e8f5ec; color: #2F6B3F; }
+    .stat-icon.gold   { background: #fdf3e0; color: #C9973A; }
+    .stat-icon.blue   { background: #e8f0fe; color: #3b6fd4; }
+    .stat-icon.teal   { background: #e0f7f5; color: #00897b; }
+
+    .stat-value {
+        font-family: 'Playfair Display', serif;
+        font-size: 28px; font-weight: 700;
+        color: #1A1A1A; line-height: 1;
+    }
+
+    .stat-label {
+        font-size: 11px; font-weight: 600;
+        color: #6B6860; text-transform: uppercase;
+        letter-spacing: 0.08em; margin-top: 4px;
+    }
+
+    /* ── TABLES ── */
+    .section-card {
+        background: #fff;
+        border: 1px solid #E2DED6;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    }
+
+    .section-card-header {
+        padding: 16px 20px;
+        border-bottom: 1px solid #E2DED6;
+        display: flex; align-items: center; justify-content: space-between;
+        background: #fff;
+    }
+
+    .section-card-title {
+        font-size: 14px; font-weight: 600;
+        color: #1A1A1A; display: flex; align-items: center; gap: 8px;
+    }
+
+    .section-card-title i {
+        color: #2F6B3F; font-size: 13px;
+    }
+
+    .section-link {
+        font-size: 12px; color: #2F6B3F;
+        text-decoration: none; font-weight: 500;
+        display: flex; align-items: center; gap: 4px;
+    }
+
+    .section-link:hover { color: #1E4D2B; }
+
+    .data-table { width: 100%; border-collapse: collapse; }
+
+    .data-table thead th {
+        background: #FAF8F4;
+        font-size: 10.5px; font-weight: 600;
+        text-transform: uppercase; letter-spacing: 0.09em;
+        color: #6B6860; padding: 10px 20px;
+        border-bottom: 1px solid #E2DED6;
+    }
+
+    .data-table tbody td {
+        padding: 12px 20px;
+        font-size: 13.5px; color: #1A1A1A;
+        border-bottom: 1px solid #F0EDE6;
+        vertical-align: middle;
+    }
+
+    .data-table tbody tr:last-child td { border-bottom: none; }
+    .data-table tbody tr:hover td { background: #FAF8F4; }
+
+    .dept-code {
+        display: inline-block;
+        background: #e8f5ec; color: #2F6B3F;
+        font-size: 11px; font-weight: 700;
+        padding: 3px 9px; border-radius: 5px;
+        letter-spacing: 0.04em;
+    }
+
+    .student-count {
+        display: inline-flex; align-items: center; gap: 5px;
+        font-size: 13px; color: #6B6860;
+    }
+
+    .student-count i { font-size: 11px; }
+
+    .empty-state {
+        text-align: center; padding: 36px 20px;
+        color: #6B6860; font-size: 13px;
+    }
+
+    .empty-state i {
+        font-size: 28px; color: #D0CCC4;
+        display: block; margin-bottom: 10px;
+    }
+
+    /* Avatar for students */
+    .student-avatar {
+        width: 28px; height: 28px; border-radius: 50%;
+        background: #e8f5ec; color: #2F6B3F;
+        font-size: 11px; font-weight: 700;
+        display: inline-flex; align-items: center; justify-content: center;
+        margin-right: 8px; flex-shrink: 0;
+    }
+
+    .student-name-cell { display: flex; align-items: center; }
+
+    @media (max-width: 900px) {
+        .stats-row { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 560px) {
+        .stats-row { grid-template-columns: 1fr; }
+    }
 </style>
 
-<h2 style="color: #2F6B3F; margin-bottom: 20px;">Dashboard</h2>
+<!-- Page Header -->
+<div class="page-header">
+    <div>
+        <div class="page-title">Dashboard</div>
+        <div class="page-subtitle">Welcome back, <strong>{{ request.user.username }}</strong> — here's what's happening today.</div>
+    </div>
+    <div class="date-badge">
+        <i class="fas fa-calendar-alt me-1"></i>
+        <span id="live-date"></span>
+    </div>
+</div>
 
-<div class="row mb-4">
-    <div class="col-md-3 mb-3">
-        <div class="stat-card">
-            <div class="stat-icon" style="background: rgba(47, 107, 63, 0.1); color: #2F6B3F;">
-                <i class="fas fa-building"></i>
-            </div>
-            <div>
-                <div class="stat-label">Departments</div>
-                <div class="stat-value">{{ total_departments }}</div>
-            </div>
+<!-- Stats -->
+<div class="stats-row">
+    <div class="stat-card green">
+        <div class="stat-icon green"><i class="fas fa-building"></i></div>
+        <div>
+            <div class="stat-value">{{ total_departments }}</div>
+            <div class="stat-label">Departments</div>
         </div>
     </div>
-    <div class="col-md-3 mb-3">
-        <div class="stat-card">
-            <div class="stat-icon" style="background: rgba(127, 183, 126, 0.1); color: #7FB77E;">
-                <i class="fas fa-book"></i>
-            </div>
-            <div>
-                <div class="stat-label">Courses</div>
-                <div class="stat-value">{{ total_courses }}</div>
-            </div>
+    <div class="stat-card gold">
+        <div class="stat-icon gold"><i class="fas fa-book"></i></div>
+        <div>
+            <div class="stat-value">{{ total_courses }}</div>
+            <div class="stat-label">Courses</div>
         </div>
     </div>
-    <div class="col-md-3 mb-3">
-        <div class="stat-card">
-            <div class="stat-icon" style="background: rgba(247, 200, 92, 0.1); color: #F7C85C;">
-                <i class="fas fa-users"></i>
-            </div>
-            <div>
-                <div class="stat-label">Students</div>
-                <div class="stat-value">{{ total_students }}</div>
-            </div>
+    <div class="stat-card blue">
+        <div class="stat-icon blue"><i class="fas fa-users"></i></div>
+        <div>
+            <div class="stat-value">{{ total_students }}</div>
+            <div class="stat-label">Students</div>
         </div>
     </div>
-    <div class="col-md-3 mb-3">
-        <div class="stat-card">
-            <div class="stat-icon" style="background: rgba(47, 107, 63, 0.15); color: #2F6B3F;">
-                <i class="fas fa-clipboard-list"></i>
-            </div>
-            <div>
-                <div class="stat-label">Enrollments</div>
-                <div class="stat-value">{{ total_enrollments }}</div>
-            </div>
+    <div class="stat-card teal">
+        <div class="stat-icon teal"><i class="fas fa-clipboard-list"></i></div>
+        <div>
+            <div class="stat-value">{{ total_enrollments }}</div>
+            <div class="stat-label">Enrollments</div>
         </div>
     </div>
 </div>
 
-<div class="row">
+<!-- Tables Row -->
+<div class="row g-4">
     <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">Departments</h5>
+        <div class="section-card">
+            <div class="section-card-header">
+                <div class="section-card-title">
+                    <i class="fas fa-building"></i> Departments
+                </div>
+                <a href="{% url 'department_list' %}" class="section-link">View all <i class="fas fa-arrow-right"></i></a>
             </div>
-            <div class="table-responsive">
-                <table class="table table-sm mb-0">
-                    <thead style="background: #f9f8f6;">
-                        <tr>
-                            <th>Name</th>
-                            <th>Code</th>
-                            <th>Students</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for dept in departments %}
-                        <tr>
-                            <td>{{ dept.name }}</td>
-                            <td><strong>{{ dept.code }}</strong></td>
-                            <td>{{ dept.student_count }}</td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="3" class="text-center text-muted py-3">No departments</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Code</th>
+                        <th>Students</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for dept in departments %}
+                    <tr>
+                        <td>{{ dept.name }}</td>
+                        <td><span class="dept-code">{{ dept.code }}</span></td>
+                        <td>
+                            <span class="student-count">
+                                <i class="fas fa-user"></i> {{ dept.student_count }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="3">
+                            <div class="empty-state">
+                                <i class="fas fa-building"></i>
+                                No departments yet
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
 
     <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">Recent Students</h5>
+        <div class="section-card">
+            <div class="section-card-header">
+                <div class="section-card-title">
+                    <i class="fas fa-user-graduate"></i> Recent Students
+                </div>
+                <a href="{% url 'student_list' %}" class="section-link">View all <i class="fas fa-arrow-right"></i></a>
             </div>
-            <div class="table-responsive">
-                <table class="table table-sm mb-0">
-                    <thead style="background: #f9f8f6;">
-                        <tr>
-                            <th>Name</th>
-                            <th>ID</th>
-                            <th>Department</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for student in recent_students %}
-                        <tr>
-                            <td>{{ student.name }}</td>
-                            <td><strong>{{ student.student_id }}</strong></td>
-                            <td>{{ student.department.code }}</td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="3" class="text-center text-muted py-3">No students</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Student ID</th>
+                        <th>Department</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student in recent_students %}
+                    <tr>
+                        <td>
+                            <div class="student-name-cell">
+                                <div class="student-avatar">{{ student.name|slice:":1"|upper }}</div>
+                                {{ student.name }}
+                            </div>
+                        </td>
+                        <td><span class="dept-code" style="background:#fdf3e0;color:#C9973A;">{{ student.student_id }}</span></td>
+                        <td>{{ student.department.code }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="3">
+                            <div class="empty-state">
+                                <i class="fas fa-user-graduate"></i>
+                                No students yet
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
+
+<script>
+    const d = new Date();
+    document.getElementById('live-date').textContent = d.toLocaleDateString('en-US', {
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+    });
+</script>
 {% endblock %}
