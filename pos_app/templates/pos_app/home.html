@@ -1,5 +1,5 @@
 {% extends 'pos_app/base.html' %}
-
+{% load static %}
 {% block content %}
 <style>
     /* Override content padding for full-bleed hero */
@@ -268,7 +268,7 @@
 <!-- HERO -->
 <section class="hero">
     <div class="hero-logo-wrap">
-        <img src="/img/ncf_logo.png" alt="NCF Logo">
+        <img src="{% static 'img/ncf_logo.png' %}" alt="NCF Logo">
     </div>
     <div class="hero-badge"><i class="fas fa-circle"></i> NCF Enrollment System</div>
     <h1 class="hero-title">Your Academic Journey<br>Starts <span>Here</span></h1>
