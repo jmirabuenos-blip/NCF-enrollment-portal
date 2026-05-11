@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+{% load static %}
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -383,7 +384,7 @@
 <div class="sidebar">
     <a href="{% url 'home' %}" class="sidebar-logo">
         <div class="sidebar-logo-img">
-            <img src="/img/ncf_logo.png" alt="NCF" onerror="this.style.display='none'">
+            <img src="{% static 'img/ncf_logo.png' %}" alt="NCF" onerror="this.style.display='none'">
         </div>
         <div>
             <div class="sidebar-logo-text">NCF Portal</div>
